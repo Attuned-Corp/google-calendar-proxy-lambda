@@ -19,6 +19,17 @@ data "archive_file" "lambda_gcal_zip" {
   depends_on  = [terraform_data.lambda_gcal_dependencies]
 }
 
+resource "aws_cloudwatch_log_group" "lambda_gcal" {
+  name = "/aws/lambda/${aws_lambda_function.lambda_gcal.function_name}"
+
+  retention_in_days = 30
+}
+
+resource "aws_iam_role" "lambda_gcal" {
+  name               = "lambda-gcal"
+  assume_role_policy = data.aws_iam_policy_document.lambda_gcal.json
+}
+
 data "aws_iam_policy_document" "lambda_gcal" {
   statement {
     effect = "Allow"
@@ -32,9 +43,9 @@ data "aws_iam_policy_document" "lambda_gcal" {
   }
 }
 
-resource "aws_iam_role" "lambda_gcal" {
-  name               = "lambda-gcal"
-  assume_role_policy = data.aws_iam_policy_document.lambda_gcal.json
+resource "aws_iam_role_policy_attachment" "lambda_gcal_basic_execution" {
+  role       = aws_iam_role.lambda_gcal.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 resource "aws_lambda_function" "lambda_gcal" {
