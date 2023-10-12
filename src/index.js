@@ -1,15 +1,31 @@
 const GoogleCalendar = require('./googlecalendar').GoogleCalendar
+const isAccessTokenValid = require('./auth').isAccessTokenValid;
 
 /*
 Format of event body
 {
   eventType: "events" | "calendar",
   calendarId: string
+  accessToken: string
 }
 */
 exports.handler = async (event) => {
-  const eventType = event.eventType; // Either "events" or "calendars"
+  const eventType = event.eventType;
+
   const calendarId = event.calendarId;
+  if (!calendarId || typeof calendarId !== 'string') {
+    throw new Error('calendarId: must be a string');
+  }
+
+  const accessToken = event.accesstoken
+  if (!accessToken || typeof accessToken !== 'string') {
+    throw new Error('accessToken: must be a string');
+  }
+
+  // Verify access token is valid
+  if (!isAccessTokenValid(accessToken)) {
+    throw new Error('Unauthorized')
+  }
 
   const googleCalendar = await GoogleCalendar.instance(
     calendarId
@@ -20,5 +36,5 @@ exports.handler = async (event) => {
     return await googleCalendar.getEvents()
   }
 
-  return response;
+  throw new Error(`event type ${eventType} not handled`);
 };
