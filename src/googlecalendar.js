@@ -1,4 +1,5 @@
 const google = require('googleapis').google
+const createHash = require('crypto').createHash
 
 const EVENTS_MAX_RESULTS = 1000;
 const DEFAULT_CUTOFF_DAYS = 90;
@@ -9,9 +10,15 @@ class GoogleCalendar {
   constructor(
     client,
     calendarId,
+    cutoffDays,
+    allowDomains,
+    proxySecret
   ) {
     this.client = client
     this.calendarId = calendarId
+    this.cutoffDays = cutoffDays
+    this.allowDomains = allowDomains
+    this.proxySecret = proxySecret
   }
 
   static async instance(
@@ -34,10 +41,20 @@ class GoogleCalendar {
 
     const calendarClient = google.calendar({version: 'v3', auth});
 
+    const cutoffDays = process.env.CUTOFF_DAYS || DEFAULT_CUTOFF_DAYS
+    let allowDomains = []
+    if (process.env.ALLOW_DOMAINS) {
+      allowDomains = process.env.ALLOW_DOMAINS.split(",")
+    }
+    const proxySecret = process.env.PROXY_SECRET || ""
+
     // Create and cache calendar client for each calendar id
     GoogleCalendar.googleCalendars[calendarId] = new GoogleCalendar(
       calendarClient,
       calendarId,
+      cutoffDays,
+      allowDomains,
+      proxySecret
     );
     return GoogleCalendar.googleCalendars[calendarId];
   }
@@ -69,6 +86,22 @@ class GoogleCalendar {
     throw new Error(errorMessage);
   }
 
+  _redactEmail(email) {
+    if (!email) return email
+
+    const splitEmail = email.split("@");
+    if (splitEmail.length < 2) return email
+
+    if (this.allowDomains.includes(splitEmail[1])) {
+      return email
+    }
+
+    // Hash email address and domain
+    const addressHash = createHash('sha1').update(`${splitEmail[0]}-${this.proxySecret}`).digest('hex');
+    const domainHash = createHash('sha1').update(`${splitEmail[1]}-${this.proxySecret}`).digest('hex');
+    return `${addressHash}.${domainHash}@example.com`
+  }
+
   _redactEvent(event) {
     // Redact the whole summary
     event.summary = "<REDACTED>"
@@ -76,7 +109,7 @@ class GoogleCalendar {
     // Run regex on description to replace sensitive urls
     const urlsToReplace = [
       'greenhouse\.io',
-      'ashbyhq\.com'
+      'ashbyhq\.com',
     ]
     if (event.description) {
       const newDescription = event.description
@@ -87,12 +120,19 @@ class GoogleCalendar {
       event.description = newDescription
     }
 
-    // TODO: Run regex on emails
-    // Replace any from external domains with hashes
-    // creator.email
-    // organizer.email
-    // attendees[num].email
-    // const allowDomains = process.env("ALLOW_DOMAINS") || []
+    // Replace any emails from external domains with hashes
+    const creator = event.creator;
+    if (creator) {
+      creator.email = this._redactEmail(creator.email);
+    }
+    const organizer = event.organizer
+    if (organizer) {
+      organizer.email = this._redactEmail(organizer.email);
+    }
+    const attendees = event.attendees || []
+    for (let i = 0; i < attendees.length; i++) {
+      attendees[i].email = this._redactEmail(attendees[i].email);
+    }
 
     return event;
   }
@@ -127,8 +167,7 @@ class GoogleCalendar {
   async getEvents() {
     const calendar = await this.getCalendar();
 
-    const cutoffDays = process.env.CUTOFF_DAYS || DEFAULT_CUTOFF_DAYS;
-    const startDate = new Date((new Date()).getTime() - cutoffDays * 24 * 60 * 60 * 1000);
+    const startDate = new Date((new Date()).getTime() - this.cutoffDays * 24 * 60 * 60 * 1000);
     const endDate = new Date((new Date()).getTime() + 1 * 24 * 60 * 60 * 1000);
 
     const func = (pageToken) => {
