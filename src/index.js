@@ -8,10 +8,8 @@ Format of event body
 }
 */
 exports.handler = async (event) => {
-  let body = JSON.parse(event.body)
-
-  const eventType = body.eventType; // Either "events" or "calendars"
-  const calendarId = body.calendarId;
+  const eventType = event.eventType; // Either "events" or "calendars"
+  const calendarId = event.calendarId;
 
   const googleCalendar = await GoogleCalendar.instance(
     calendarId
