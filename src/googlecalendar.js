@@ -138,7 +138,8 @@ class GoogleCalendar {
       pageToken,
       maxResults,
       timeMin,
-      timeMax
+      timeMax,
+      singleEvents: true,
     };
 
     let response;
@@ -146,12 +147,6 @@ class GoogleCalendar {
       response = await this.client.events.list(params);
     } catch (err) {
       return this._getError(err);
-    }
-
-    if (response.status >= 300) {
-      return {
-        error: `${response?.status}: ${response?.statusText}`
-      }
     }
 
     const responseItems = response.data.items ?? [];
@@ -162,13 +157,19 @@ class GoogleCalendar {
 
     response.data.items = responseItems;
 
-    return response.data;
+    return {
+      data: response.data,
+      status: response.status,
+      statusText: response.statusText
+    };
   }
 
   async getCalendar(calendarId = this.calendarId) {
     try {
       const response = await this.client.calendars.get({calendarId});
-      return response.data
+      return {
+        data: response.data
+      }
     } catch (err) {
       return this._getError(err);
     }
