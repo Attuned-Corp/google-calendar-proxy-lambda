@@ -41,7 +41,7 @@ resource "aws_lambda_function" "lambda_gcal" {
   function_name    = "lambda-gcal"
   filename         = data.archive_file.lambda_gcal_zip.output_path
   source_code_hash = data.archive_file.lambda_gcal_zip.output_base64sha256
-  package_type     = "zip"
+  package_type     = "Zip"
   runtime          = "nodejs18.x"
   handler          = "index.handler"
   role             = aws_iam_role.lambda_gcal.arn
