@@ -11,12 +11,12 @@ class GoogleCalendar {
     client,
     calendarId,
     allowDomains,
-    proxySecret
+    hashSecret
   ) {
     this.client = client
     this.calendarId = calendarId
     this.allowDomains = allowDomains
-    this.proxySecret = proxySecret
+    this.hashSecret = hashSecret
   }
 
   static async instance(
@@ -40,17 +40,17 @@ class GoogleCalendar {
     const calendarClient = google.calendar({version: 'v3', auth});
 
     let allowDomains = []
-    if (process.env.ALLOW_DOMAINS) {
-      allowDomains = process.env.ALLOW_DOMAINS.split(",")
+    if (process.env.ALLOWED_EMAIL_DOMAINS) {
+      allowDomains = process.env.ALLOWED_EMAIL_DOMAINS.split(",")
     }
-    const proxySecret = process.env.PROXY_SECRET || ""
+    const hashSecret = process.env.HASH_SECRET || ""
 
     // Create and cache calendar client for each calendar id
     GoogleCalendar.googleCalendars[calendarId] = new GoogleCalendar(
       calendarClient,
       calendarId,
       allowDomains,
-      proxySecret
+      hashSecret
     );
     return GoogleCalendar.googleCalendars[calendarId];
   }
@@ -83,8 +83,8 @@ class GoogleCalendar {
     }
 
     // Hash email address and domain
-    const addressHash = createHash('sha1').update(`${splitEmail[0]}-${this.proxySecret}`).digest('hex');
-    const domainHash = createHash('sha1').update(`${splitEmail[1]}-${this.proxySecret}`).digest('hex');
+    const addressHash = createHash('sha1').update(`${splitEmail[0]}-${this.hashSecret}`).digest('hex');
+    const domainHash = createHash('sha1').update(`${splitEmail[1]}-${this.hashSecret}`).digest('hex');
     return `${addressHash}.${domainHash}@example.com`
   }
 

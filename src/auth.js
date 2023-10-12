@@ -1,7 +1,7 @@
 const timingSafeEqual = require("crypto").timingSafeEqual
 
 const isAccessTokenValid = (accessToken) => {
-  const serverAccessToken = process.env.PROXY_ACCESS_TOKEN || ""
+  const serverAccessToken = process.env.LAMBDA_ACCESS_TOKEN || ""
 
   const accessTokenBuffer = Buffer.from(accessToken);
   const serverAccessTokenBuffer = Buffer.from(serverAccessToken);

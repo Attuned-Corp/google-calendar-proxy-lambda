@@ -3,14 +3,30 @@ variable "aws_region" {
   type        = string
 }
 
-variable "gcal_client_email" {
-  description = "Google Calendar Email to use for Client"
+variable "client_email" {
+  description = "Google Calendar API Client Email"
+  type        = string
+}
+
+variable "private_key" {
+  description = "Private Key for accessing Google Calendar API"
   type        = string
   sensitive   = true
 }
 
-variable "gcal_private_key" {
-  description = "Google Calendar Private Key to use for Client"
+variable "lambda_access_token" {
+  description = "Access Token required to invoke the Lambda"
   type        = string
   sensitive   = true
+}
+
+variable "hash_secret" {
+  description = "Secret for hashing data"
+  type        = string
+  sensitive   = true
+}
+
+variable "allowed_email_domains" {
+  description = "Email domains allowed that will not be hashed"
+  type        = list(string)
 }

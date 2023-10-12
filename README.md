@@ -2,8 +2,11 @@
 
 ## Variables
 - `aws_region`: AWS Region to deploy in
-- `gcal_client_email`: Google Calendar Email to use for Client
-- `gcal_private_key`: Google Calendar Private Key to use for Client
+- `client_email`: Google Calendar API Client Email
+- `private_key`: Private Key for accessing Google Calendar API
+- `lambda_access_token`: Access Token required to invoke the Lambda
+- `hash_secret`: Secret for hashing data
+- `allowed_email_domains`: Email domains allowed that will not be hashed
 
 ## Output
 - `lambda_gcal_id`: ID of Google Calendar Lambda Created

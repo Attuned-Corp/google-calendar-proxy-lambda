@@ -60,8 +60,11 @@ resource "aws_lambda_function" "lambda_gcal" {
 
   environment {
     variables = {
-      GCAL_CLIENT_EMAIL = var.gcal_client_email
-      GCAL_PRIVATE_KEY  = var.gcal_private_key
+      GCAL_CLIENT_EMAIL     = var.client_email
+      GCAL_PRIVATE_KEY      = var.private_key
+      LAMBDA_ACCESS_TOKEN   = var.lambda_access_token
+      HASH_SECRET           = var.hash_secret
+      ALLOWED_EMAIL_DOMAINS = join(",", var.allowed_email_domains)
     }
   }
 }
