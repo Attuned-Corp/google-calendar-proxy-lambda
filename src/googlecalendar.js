@@ -59,23 +59,11 @@ class GoogleCalendar {
     return GoogleCalendar.googleCalendars[calendarId];
   }
 
-  async _invokeCallWithErrorWrapper(
-    func,
-    message = '',
-    pageToken,
-  ) {
-    let res;
-    try {
-      res = await func(pageToken);
-    } catch (err) {
-      this._wrapAndThrow(err, message);
-    }
-    return res;
-  }
-
-  _wrapAndThrow(err, message = '') {
+  _getError(err, message = '') {
     if (err.error_code || err.error_info) {
-      throw new Error(`${err.error_code}: ${err.error_info}`);
+      return {
+        error: `${err.error_code}: ${err.error_info}`
+      }
     }
     let errorMessage = message;
     try {
@@ -83,7 +71,9 @@ class GoogleCalendar {
     } catch (wrapError) {
       errorMessage += wrapError.message;
     }
-    throw new Error(errorMessage);
+    return {
+      error: errorMessage
+    };
   }
 
   _redactEmail(email) {
@@ -137,60 +127,50 @@ class GoogleCalendar {
     return event;
   }
 
-  async paginate(
-    func,
-    calendarId
+  async getEvents(
+    maxResults,
+    timeMin,
+    timeMax,
+    pageToken = undefined
   ) {
-    let nextPageToken;
-    let items = [];
-    do {
-      const response = await this._invokeCallWithErrorWrapper(
-        func,
-        '',
-        nextPageToken,
-      );
-
-      if (response?.status >= 300) {
-        throw new VError(`${response?.status}: ${response?.statusText}`);
-      }
-      const nextSyncToken = response?.data?.nextSyncToken;
-      for (const item of response?.data.items ?? []) {
-        items.push({...this._redactEvent(item), nextSyncToken, calendarId});
-      }
-
-      nextPageToken = response?.data?.nextPageToken;
-    } while (nextPageToken);
-
-    return items;
-  }
-
-  async getEvents() {
-    const calendar = await this.getCalendar();
-
-    const startDate = new Date((new Date()).getTime() - this.cutoffDays * 24 * 60 * 60 * 1000);
-    const endDate = new Date((new Date()).getTime() + 1 * 24 * 60 * 60 * 1000);
-
-    const func = (pageToken) => {
-      const params = {
-        calendarId: calendar.id,
-        pageToken,
-        maxResults: EVENTS_MAX_RESULTS,
-        timeMin: startDate.toISOString(),
-        timeMax: endDate.toISOString()
-      };
-
-      return this.client.events.list(params);
+    const params = {
+      calendarId: this.calendarId,
+      pageToken,
+      maxResults,
+      timeMin,
+      timeMax
     };
 
-    return await this.paginate(func, calendar.id);
+    let response;
+    try {
+      response = await this.client.events.list(params);
+    } catch (err) {
+      return this._getError(err);
+    }
+
+    if (response.status >= 300) {
+      return {
+        error: `${response?.status}: ${response?.statusText}`
+      }
+    }
+
+    const responseItems = response.data.items ?? [];
+    const redactedItems = []
+    for (const item of responseItems) {
+      redactedItems.push(this._redactEvent(item));
+    }
+
+    response.data.items = responseItems;
+
+    return response.data;
   }
 
   async getCalendar(calendarId = this.calendarId) {
     try {
       const response = await this.client.calendars.get({calendarId});
-      return response.data;
+      return response.data
     } catch (err) {
-      this._wrapAndThrow(err);
+      return this._getError(err);
     }
   }
 }

@@ -5,26 +5,41 @@ const isAccessTokenValid = require('./auth').isAccessTokenValid;
 Format of event body
 {
   eventType: "events" | "calendar",
-  calendarId: string
-  accessToken: string
+  calendarId: string,
+  accessToken: string,
+  maxResults: number,
+  timeMin: string,
+  timeMax: string,
+  pageToken: string (optional)
 }
+
+Response format
+{
+  error: string
+} | Gcal API response
 */
 exports.handler = async (event) => {
+  // const event = JSON.parse(event.body);
   const eventType = event.eventType;
 
   const calendarId = event.calendarId;
   if (!calendarId || typeof calendarId !== 'string') {
-    throw new Error('calendarId: must be a string');
+    return {
+      error: 'calendarId: must be a string'
+    }
   }
 
-  const accessToken = event.accesstoken
+  const accessToken = event.accessToken
   if (!accessToken || typeof accessToken !== 'string') {
-    throw new Error('accessToken: must be a string');
+    return {
+      error: 'accessToken: must be a string'
+    }
   }
 
-  // Verify access token is valid
   if (!isAccessTokenValid(accessToken)) {
-    throw new Error('Unauthorized')
+    return {
+      error: 'Unauthorized'
+    }
   }
 
   const googleCalendar = await GoogleCalendar.instance(
@@ -33,8 +48,35 @@ exports.handler = async (event) => {
   if (eventType === "calendar") {
     return await googleCalendar.getCalendar()
   } else if (eventType === "events") {
-    return await googleCalendar.getEvents()
+    const maxResults = event.maxResults;
+    if (!maxResults || typeof maxResults !== 'number') {
+      return {
+        error: 'maxResults: must be a number'
+      }
+    }
+
+    const timeMin = event.timeMin;
+    if (!timeMin || typeof timeMin !== 'string') {
+      return {
+        error: 'timeMin: must be a string'
+      }
+    }
+
+    const timeMax = event.timeMax;
+    if (!timeMax || typeof timeMax !== 'string') {
+      return {
+        error: 'timeMax: must be a string'
+      }
+    }
+    return await googleCalendar.getEvents(
+      event.maxResults,
+      event.timeMin,
+      event.timeMax,
+      event.pageToken || undefined
+    )
   }
 
-  throw new Error(`event type ${eventType} not handled`);
+  return {
+    error: `event type ${eventType} not handled`
+  }
 };
