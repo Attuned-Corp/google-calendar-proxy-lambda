@@ -78,19 +78,21 @@ class Googlecalendar {
       'greenhouse\.io',
       'ashbyhq\.com'
     ]
-    const newDescription = event.description
-    for (const url of urlsToReplace) {
-      var regex = "[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{0,256}(" + url + ")([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
-      newDescription.replace(new RegExp(regex, 'ig'), url)
+    if (event.description) {
+      const newDescription = event.description
+      for (const url of urlsToReplace) {
+        var regex = "[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{0,256}(" + url + ")([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
+        newDescription.replace(new RegExp(regex, 'ig'), url)
+      }
+      event.description = newDescription
     }
-    event.description = newDescription
 
     // TODO: Run regex on emails
     // Replace any from external domains with hashes
     // creator.email
     // organizer.email
     // attendees[num].email
-    const allowDomains = process.env("ALLOW_DOMAINS") || []
+    // const allowDomains = process.env("ALLOW_DOMAINS") || []
 
     return event;
   }
