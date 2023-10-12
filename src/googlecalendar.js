@@ -3,7 +3,7 @@ const google = require('googleapis').google
 const EVENTS_MAX_RESULTS = 1000;
 const DEFAULT_CUTOFF_DAYS = 90;
 
-class Googlecalendar {
+class GoogleCalendar {
   static googleCalendars = {};
 
   constructor(
@@ -18,8 +18,8 @@ class Googlecalendar {
     calendarId
   ) {
     // Return an existing calendar client instance if present, otherwise create a new one
-    if (Googlecalendar.googleCalendars[calendarId]) {
-      return Googlecalendar.googleCalendars[calendarId];
+    if (GoogleCalendar.googleCalendars[calendarId]) {
+      return GoogleCalendar.googleCalendars[calendarId];
     }
 
     const auth = new google.auth.GoogleAuth({
@@ -35,11 +35,11 @@ class Googlecalendar {
     const calendarClient = google.calendar({version: 'v3', auth});
 
     // Create and cache calendar client for each calendar id
-    Googlecalendar.googleCalendars[calendarId] = new Googlecalendar(
+    GoogleCalendar.googleCalendars[calendarId] = new GoogleCalendar(
       calendarClient,
       calendarId,
     );
-    return Googlecalendar.googleCalendars[calendarId];
+    return GoogleCalendar.googleCalendars[calendarId];
   }
 
   async _invokeCallWithErrorWrapper(
@@ -157,6 +157,6 @@ class Googlecalendar {
 }
 
 module.exports = {
-  Googlecalendar
+  GoogleCalendar: GoogleCalendar
 }
   

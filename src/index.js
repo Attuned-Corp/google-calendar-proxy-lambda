@@ -1,4 +1,4 @@
-const Googlecalendar = require('./googlecalendar').Googlecalendar
+const GoogleCalendar = require('./googlecalendar').GoogleCalendar
 
 /*
 Format of event body
@@ -13,7 +13,7 @@ exports.handler = async (event) => {
   const eventType = body.eventType; // Either "events" or "calendars"
   const calendarId = body.calendarId;
 
-  const googleCalendar = await Googlecalendar.instance(
+  const googleCalendar = await GoogleCalendar.instance(
     calendarId
   )
   if (eventType === "calendar") {
