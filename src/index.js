@@ -1,4 +1,4 @@
-const Googlecalendar = require('./src/googlecalendar').Googlecalendar
+const Googlecalendar = require('./googlecalendar').Googlecalendar
 
 /*
 Format of event body
