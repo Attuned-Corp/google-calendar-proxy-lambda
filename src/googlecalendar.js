@@ -10,13 +10,11 @@ class GoogleCalendar {
   constructor(
     client,
     calendarId,
-    cutoffDays,
     allowDomains,
     proxySecret
   ) {
     this.client = client
     this.calendarId = calendarId
-    this.cutoffDays = cutoffDays
     this.allowDomains = allowDomains
     this.proxySecret = proxySecret
   }
@@ -41,7 +39,6 @@ class GoogleCalendar {
 
     const calendarClient = google.calendar({version: 'v3', auth});
 
-    const cutoffDays = process.env.CUTOFF_DAYS || DEFAULT_CUTOFF_DAYS
     let allowDomains = []
     if (process.env.ALLOW_DOMAINS) {
       allowDomains = process.env.ALLOW_DOMAINS.split(",")
@@ -52,7 +49,6 @@ class GoogleCalendar {
     GoogleCalendar.googleCalendars[calendarId] = new GoogleCalendar(
       calendarClient,
       calendarId,
-      cutoffDays,
       allowDomains,
       proxySecret
     );
