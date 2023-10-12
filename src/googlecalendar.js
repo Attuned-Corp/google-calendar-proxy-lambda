@@ -149,13 +149,14 @@ class GoogleCalendar {
       return this._getError(err);
     }
 
-    const responseItems = response.data.items ?? [];
-    const redactedItems = []
-    for (const item of responseItems) {
-      redactedItems.push(this._redactEvent(item));
+    const responseItems = response.data?.items ?? [];
+    if (responseItems) {
+      const redactedItems = []
+      for (const item of responseItems) {
+        redactedItems.push(this._redactEvent(item));
+      }
+      response.data.items = responseItems;
     }
-
-    response.data.items = responseItems;
 
     return {
       data: response.data,
