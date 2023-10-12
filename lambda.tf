@@ -46,4 +46,11 @@ resource "aws_lambda_function" "lambda_gcal" {
   handler          = "index.handler"
   role             = aws_iam_role.lambda_gcal.arn
   publish          = true
+
+  environment {
+    variables = {
+      GCAL_CLIENT_EMAIL = var.gcal_client_email
+      GCAL_PRIVATE_KEY  = var.gcal_private_key
+    }
+  }
 }
