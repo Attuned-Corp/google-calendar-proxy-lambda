@@ -56,6 +56,7 @@ resource "aws_lambda_function" "lambda_gcal" {
   runtime          = "nodejs18.x"
   handler          = "index.handler"
   role             = aws_iam_role.lambda_gcal.arn
+  memory_size      = 256
   publish          = true
 
   environment {

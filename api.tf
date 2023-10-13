@@ -51,4 +51,8 @@ resource "aws_lambda_permission" "lambda_gcal" {
   qualifier     = aws_lambda_function.lambda_gcal.version
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.lambda_gcal.execution_arn}/*/*"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
