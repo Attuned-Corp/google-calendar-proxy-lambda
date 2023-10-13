@@ -47,7 +47,8 @@ resource "aws_apigatewayv2_route" "lambda_gcal" {
 resource "aws_lambda_permission" "lambda_gcal" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_gcal.qualified_arn
+  function_name = aws_lambda_function.lambda_gcal.function_name
+  qualifier     = aws_lambda_function.lambda_gcal.version
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.lambda_gcal.execution_arn}/*/*"
 }
