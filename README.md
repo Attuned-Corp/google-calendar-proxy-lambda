@@ -17,8 +17,11 @@
 module "lambda_gcal" {
   source = "git@github.com:terraform-aws-modules/terraform-aws-lambda.git?ref=(ref)"
 
-  aws_region        = "us-west-2"
-  gcal_client_email = ""
-  gcal_private_key  = ""
+  aws_region            = "us-west-2"
+  client_email          = "example@example.com"
+  private_key           = "-----BEGIN PRIVATE KEY-----..."
+  lambda_access_token   = "mP8er6zziP"
+  hash_secret           = "Q7ApA0hNOP"
+  allowed_email_domains = ["example.com"]
 }
 ```
