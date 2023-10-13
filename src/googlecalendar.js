@@ -97,10 +97,10 @@ class GoogleCalendar {
       'ashbyhq\.com',
     ]
     if (event.description) {
-      const newDescription = event.description
+      let newDescription = event.description
       for (const url of urlsToReplace) {
         var regex = "[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{0,256}(" + url + ")([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
-        newDescription.replace(new RegExp(regex, 'ig'), url)
+        newDescription = newDescription.replace(new RegExp(regex, 'ig'), url)
       }
       event.description = newDescription
     }
