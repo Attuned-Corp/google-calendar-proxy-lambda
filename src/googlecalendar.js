@@ -1,9 +1,6 @@
 const google = require('googleapis').google
 const createHash = require('crypto').createHash
 
-const EVENTS_MAX_RESULTS = 1000;
-const DEFAULT_CUTOFF_DAYS = 90;
-
 class GoogleCalendar {
   static googleCalendars = {};
 
@@ -58,7 +55,8 @@ class GoogleCalendar {
   _getError(err, message = '') {
     if (err.error_code || err.error_info) {
       return {
-        error: `${err.error_code}: ${err.error_info}`
+        body: `${err.error_code}: ${err.error_info}`,
+        statusCode: 500
       }
     }
     let errorMessage = message;
@@ -68,7 +66,8 @@ class GoogleCalendar {
       errorMessage += wrapError.message;
     }
     return {
-      error: errorMessage
+      body: errorMessage,
+      statusCode: 500
     };
   }
 
@@ -155,9 +154,8 @@ class GoogleCalendar {
     }
 
     return {
-      data: response.data,
-      status: response.status,
-      statusText: response.statusText
+      body: JSON.stringify(response.data),
+      statusCode: response.status,
     };
   }
 
@@ -165,7 +163,7 @@ class GoogleCalendar {
     try {
       const response = await this.client.calendars.get({calendarId});
       return {
-        data: response.data
+        body: JSON.stringify(response.data),
       }
     } catch (err) {
       return this._getError(err);

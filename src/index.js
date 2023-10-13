@@ -15,8 +15,9 @@ Format of event body
 
 Response format
 {
-  error: string
-} | Gcal API response
+  body: response data or error
+  statusCode: number
+}
 */
 exports.handler = async (event) => {
   // const event = JSON.parse(event.body);
@@ -25,20 +26,23 @@ exports.handler = async (event) => {
   const calendarId = event.calendarId;
   if (!calendarId || typeof calendarId !== 'string') {
     return {
-      error: 'calendarId: must be a string'
+      body: 'calendarId: must be a string',
+      statusCode: 400
     }
   }
 
   const accessToken = event.accessToken
   if (!accessToken || typeof accessToken !== 'string') {
     return {
-      error: 'accessToken: must be a string'
+      body: 'accessToken: must be a string',
+      statusCode: 400
     }
   }
 
   if (!isAccessTokenValid(accessToken)) {
     return {
-      error: 'Unauthorized'
+      body: 'Unauthorized',
+      statusCode: 401,
     }
   }
 
@@ -51,21 +55,24 @@ exports.handler = async (event) => {
     const maxResults = event.maxResults;
     if (!maxResults || typeof maxResults !== 'number') {
       return {
-        error: 'maxResults: must be a number'
+        body: 'maxResults: must be a number',
+        statusCode: 400
       }
     }
 
     const timeMin = event.timeMin;
     if (!timeMin || typeof timeMin !== 'string') {
       return {
-        error: 'timeMin: must be a string'
+        body: 'timeMin: must be a string',
+        statusCode: 400,
       }
     }
 
     const timeMax = event.timeMax;
     if (!timeMax || typeof timeMax !== 'string') {
       return {
-        error: 'timeMax: must be a string'
+        body: 'timeMax: must be a string',
+        statusCode: 400,
       }
     }
     return await googleCalendar.getEvents(
@@ -77,6 +84,7 @@ exports.handler = async (event) => {
   }
 
   return {
-    error: `event type ${eventType} not handled`
+    body: `event type ${eventType} not handled`,
+    statusCode: 400
   }
 };
