@@ -19,8 +19,8 @@ Response format
   statusCode: number
 }
 */
-exports.handler = async (event) => {
-  // const event = JSON.parse(event.body);
+exports.handler = async (rawEvent) => {
+  const event = JSON.parse(rawEvent.body);
   const eventType = event.eventType;
 
   const calendarId = event.calendarId;
