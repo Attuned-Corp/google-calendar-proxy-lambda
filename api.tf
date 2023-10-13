@@ -31,23 +31,23 @@ resource "aws_apigatewayv2_stage" "lambda_gcal_v1" {
 resource "aws_apigatewayv2_integration" "lambda_gcal" {
   api_id = aws_apigatewayv2_api.lambda_gcal.id
 
-  integration_uri    = aws_lambda_function.lambda_gcal.invoke_arn
-  integration_type   = "AWS_PROXY"
-  integration_method = "POST"
+  integration_uri        = aws_lambda_function.lambda_gcal.qualified_invoke_arn
+  integration_type       = "AWS_PROXY"
+  integration_method     = "POST"
+  payload_format_version = "2.0"
 }
 
 resource "aws_apigatewayv2_route" "lambda_gcal" {
   api_id = aws_apigatewayv2_api.lambda_gcal.id
 
-  route_key = "POST /"
+  route_key = "POST /invoke"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_gcal.id}"
 }
 
 resource "aws_lambda_permission" "lambda_gcal" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_gcal.function_name
+  function_name = aws_lambda_function.lambda_gcal.qualified_arn
   principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_apigatewayv2_api.lambda_gcal.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.lambda_gcal.execution_arn}/*/*"
 }
