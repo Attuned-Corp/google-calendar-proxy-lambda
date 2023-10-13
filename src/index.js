@@ -19,7 +19,7 @@ Response format
   statusCode: number
 }
 */
-exports.handler = async (rawEvent) => {
+async function eventHandler(rawEvent) {
   const event = JSON.parse(rawEvent.body);
   const eventType = event.eventType;
 
@@ -86,5 +86,16 @@ exports.handler = async (rawEvent) => {
   return {
     body: `event type ${eventType} not handled`,
     statusCode: 400
+  }
+}
+
+exports.handler = async (rawEvent) => {
+  try {
+    return await eventHandler(rawEvent);
+  } catch (e) {
+    console.log(`Exception encountered! ${e}`);
+    return {
+      statusCode: 500
+    }
   }
 };
