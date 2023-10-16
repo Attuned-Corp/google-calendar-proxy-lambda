@@ -98,8 +98,8 @@ class GoogleCalendar {
 
     // Run regex on description to replace sensitive urls
     const urlsToReplace = [
-      'greenhouse\.io',
-      'ashbyhq\.com',
+      '.greenhouse\.io',
+      '.ashbyhq\.com',
     ]
     if (event.description) {
       let newDescription = event.description
@@ -169,6 +169,7 @@ class GoogleCalendar {
       const response = await this.client.calendars.get({calendarId});
       return {
         body: JSON.stringify(response.data),
+        statusCode: response.status
       }
     } catch (err) {
       return this._getError(err);
