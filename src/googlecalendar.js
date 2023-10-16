@@ -24,15 +24,16 @@ class GoogleCalendar {
       return GoogleCalendar.googleCalendars[calendarId];
     }
 
-    const auth = new google.auth.GoogleAuth({
-      // Scopes can be specified either as an array or as a single, space-delimited string.
+    const jwtClient = new google.auth.JWT({
+      email: (process.env.GCAL_CLIENT_EMAIL || ""),
+      key: (process.env.GCAL_PRIVATE_KEY || "").replace(/\\n/g, '\n'),
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
-      credentials: {
-        private_key: (process.env.GCAL_PRIVATE_KEY || "").replace(/\\n/g, '\n'),
-        client_email: (process.env.GCAL_CLIENT_EMAIL || ""),
-      },
-      clientOptions: {}
+      subject: calendarId,
     });
+  
+    const credentials = await jwtClient.authorize();
+    const auth = new google.auth.OAuth2();
+    auth.setCredentials(credentials);
 
     const calendarClient = google.calendar({version: 'v3', auth});
 
@@ -55,7 +56,9 @@ class GoogleCalendar {
   _getError(err, message = '') {
     if (err.error_code || err.error_info) {
       return {
-        body: `${err.error_code}: ${err.error_info}`,
+        body: JSON.stringify({
+          errorMessage: `${err.error_code}: ${err.error_info}`,
+        }),
         statusCode: 500
       }
     }
@@ -66,7 +69,9 @@ class GoogleCalendar {
       errorMessage += wrapError.message;
     }
     return {
-      body: errorMessage,
+      body: JSON.stringify({
+        errorMessage,
+      }),
       statusCode: 500
     };
   }

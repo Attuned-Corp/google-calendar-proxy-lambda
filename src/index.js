@@ -26,7 +26,9 @@ async function eventHandler(rawEvent) {
   const calendarId = event.calendarId;
   if (!calendarId || typeof calendarId !== 'string') {
     return {
-      body: 'calendarId: must be a string',
+      body: JSON.stringify({
+        errorMessage: 'calendarId: must be a string',
+      }),
       statusCode: 400
     }
   }
@@ -34,28 +36,45 @@ async function eventHandler(rawEvent) {
   const accessToken = event.accessToken
   if (!accessToken || typeof accessToken !== 'string') {
     return {
-      body: 'accessToken: must be a string',
+      body: JSON.stringify({
+        errorMessage: 'accessToken: must be a string',
+      }),
       statusCode: 400
     }
   }
 
   if (!isAccessTokenValid(accessToken)) {
     return {
-      body: 'Unauthorized',
+      body: JSON.stringify({
+        errorMessage: 'Unauthorized',
+      }),
       statusCode: 401,
     }
   }
 
-  const googleCalendar = await GoogleCalendar.instance(
-    calendarId
-  )
+  let googleCalendar;
+  try {
+    googleCalendar = await GoogleCalendar.instance(
+      calendarId
+    )
+  } catch (e) {
+    return {
+      body: JSON.stringify({
+        errorMessage: 'Issue authenticating to google',
+      }),
+      statusCode: 500
+    }
+  }
+
   if (eventType === "calendar") {
     return await googleCalendar.getCalendar()
   } else if (eventType === "events") {
     const maxResults = event.maxResults;
     if (!maxResults || typeof maxResults !== 'number') {
       return {
-        body: 'maxResults: must be a number',
+        body: JSON.stringify({
+          errorMessage: 'maxResults: must be a number',
+        }),
         statusCode: 400
       }
     }
@@ -63,7 +82,9 @@ async function eventHandler(rawEvent) {
     const timeMin = event.timeMin;
     if (!timeMin || typeof timeMin !== 'string') {
       return {
-        body: 'timeMin: must be a string',
+        body: JSON.stringify({
+          errorMessage: 'timeMin: must be a string',
+        }),
         statusCode: 400,
       }
     }
@@ -71,7 +92,9 @@ async function eventHandler(rawEvent) {
     const timeMax = event.timeMax;
     if (!timeMax || typeof timeMax !== 'string') {
       return {
-        body: 'timeMax: must be a string',
+        body: JSON.stringify({
+          errorMessage: 'timeMax: must be a string',
+        }),
         statusCode: 400,
       }
     }
@@ -84,7 +107,9 @@ async function eventHandler(rawEvent) {
   }
 
   return {
-    body: `event type ${eventType} not handled`,
+    body: JSON.stringify({
+      errorMessage: `event type ${eventType} not handled`,
+    }),
     statusCode: 400
   }
 }
