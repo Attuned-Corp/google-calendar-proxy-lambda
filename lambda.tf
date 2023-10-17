@@ -14,7 +14,7 @@ resource "terraform_data" "google_calendar_proxy_lambda_source" {
 
 data "archive_file" "google_calendar_proxy_lambda_zip" {
   source_dir  = local.source_dir
-  output_path = "${local.source_dir}/../google-calendar-proxy-lambda.zip"
+  output_path = "${path.module}/google-calendar-proxy-lambda.zip"
   type        = "zip"
   depends_on  = [terraform_data.google_calendar_proxy_lambda_source]
 }
