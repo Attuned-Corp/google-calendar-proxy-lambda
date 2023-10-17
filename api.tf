@@ -1,17 +1,17 @@
-resource "aws_apigatewayv2_api" "lambda_gcal" {
-  name                         = "lambda-gcal"
+resource "aws_apigatewayv2_api" "google_calendar_proxy_lambda" {
+  name                         = "google-calendar-proxy-lambda"
   protocol_type                = "HTTP"
   api_key_selection_expression = "$request.header.x-api-key"
 }
 
-resource "aws_apigatewayv2_stage" "lambda_gcal_v1" {
-  api_id = aws_apigatewayv2_api.lambda_gcal.id
+resource "aws_apigatewayv2_stage" "google_calendar_proxy_lambda_v1" {
+  api_id = aws_apigatewayv2_api.google_calendar_proxy_lambda.id
 
   name        = "v1"
   auto_deploy = true
 
   access_log_settings {
-    destination_arn = aws_cloudwatch_log_group.lambda_gcal.arn
+    destination_arn = aws_cloudwatch_log_group.google_calendar_proxy_lambda.arn
 
     format = jsonencode({
       requestId               = "$context.requestId"
@@ -28,29 +28,29 @@ resource "aws_apigatewayv2_stage" "lambda_gcal_v1" {
   }
 }
 
-resource "aws_apigatewayv2_integration" "lambda_gcal" {
-  api_id = aws_apigatewayv2_api.lambda_gcal.id
+resource "aws_apigatewayv2_integration" "google_calendar_proxy_lambda" {
+  api_id = aws_apigatewayv2_api.google_calendar_proxy_lambda.id
 
-  integration_uri        = aws_lambda_function.lambda_gcal.qualified_invoke_arn
+  integration_uri        = aws_lambda_function.google_calendar_proxy_lambda.qualified_invoke_arn
   integration_type       = "AWS_PROXY"
   integration_method     = "POST"
   payload_format_version = "2.0"
 }
 
-resource "aws_apigatewayv2_route" "lambda_gcal" {
-  api_id = aws_apigatewayv2_api.lambda_gcal.id
+resource "aws_apigatewayv2_route" "google_calendar_proxy_lambda" {
+  api_id = aws_apigatewayv2_api.google_calendar_proxy_lambda.id
 
   route_key = "POST /invoke"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_gcal.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.google_calendar_proxy_lambda.id}"
 }
 
-resource "aws_lambda_permission" "lambda_gcal" {
+resource "aws_lambda_permission" "google_calendar_proxy_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_gcal.function_name
-  qualifier     = aws_lambda_function.lambda_gcal.version
+  function_name = aws_lambda_function.google_calendar_proxy_lambda.function_name
+  qualifier     = aws_lambda_function.google_calendar_proxy_lambda.version
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.lambda_gcal.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.google_calendar_proxy_lambda.execution_arn}/*/*"
 
   lifecycle {
     create_before_destroy = true

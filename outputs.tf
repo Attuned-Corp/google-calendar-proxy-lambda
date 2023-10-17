@@ -1,9 +1,9 @@
-output "lambda_gcal_id" {
-  description = "ID of Google Calendar Lambda Created"
-  value       = aws_lambda_function.lambda_gcal.id
+output "google_calendar_proxy_lambda_id" {
+  description = "ID of Google Calendar proxy lambda"
+  value       = aws_lambda_function.google_calendar_proxy_lambda.id
 }
 
-output "lambda_gcal_api_invoke_endpoint" {
-  description = "API Endpoint to Invoke Google Calendar Lambda"
-  value       = format("%s%s", aws_apigatewayv2_stage.lambda_gcal_v1.invoke_url, element(split(" ", aws_apigatewayv2_route.lambda_gcal.route_key), 1))
+output "google_calendar_proxy_lambda_api_invoke_endpoint" {
+  description = "API Endpoint to invoke Google Calendar proxy lambda"
+  value       = format("%s%s", aws_apigatewayv2_stage.google_calendar_proxy_lambda_v1.invoke_url, element(split(" ", aws_apigatewayv2_route.google_calendar_proxy_lambda.route_key), 1))
 }

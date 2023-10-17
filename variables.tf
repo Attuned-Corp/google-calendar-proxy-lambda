@@ -14,7 +14,7 @@ variable "private_key" {
   sensitive   = true
 }
 
-variable "lambda_access_token" {
+variable "proxy_lambda_access_token" {
   description = "Access Token required to invoke the Lambda"
   type        = string
   sensitive   = true
