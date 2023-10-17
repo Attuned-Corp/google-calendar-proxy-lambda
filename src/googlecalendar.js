@@ -97,15 +97,16 @@ class GoogleCalendar {
     event.summary = "<REDACTED>"
 
     // Run regex on description to replace sensitive urls
-    const urlsToReplace = [
+    const urlsToMatch = [
       '.greenhouse\.io',
       '.ashbyhq\.com',
     ]
     if (event.description) {
-      let newDescription = event.description
-      for (const url of urlsToReplace) {
+      let newDescription = ""
+      for (const url of urlsToMatch) {
         var regex = "[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{0,256}(" + url + ")([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
-        newDescription = newDescription.replace(new RegExp(regex, 'ig'), url)
+        const matches = event.description.match(new RegExp(regex, 'ig'))
+        newDescription = newDescription + (newDescription ? " " : "") + matches.join(" ")
       }
       event.description = newDescription
     }
