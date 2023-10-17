@@ -106,7 +106,9 @@ class GoogleCalendar {
       for (const url of urlsToMatch) {
         var regex = "[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{0,256}(" + url + ")([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
         const matches = event.description.match(new RegExp(regex, 'ig'))
-        newDescription = newDescription + (newDescription ? " " : "") + matches.join(" ")
+        if (matches) {
+          newDescription = newDescription + (newDescription ? " " : "") + matches.join(" ")
+        }
       }
       event.description = newDescription
     }
