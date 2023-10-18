@@ -98,8 +98,8 @@ class GoogleCalendar {
 
     // Run regex on description to replace sensitive urls
     const urlsToMatch = [
-      '.greenhouse\.io',
-      '.ashbyhq\.com',
+      'greenhouse\.io',
+      'ashbyhq\.com',
     ]
     if (event.description) {
       let newDescription = ""
