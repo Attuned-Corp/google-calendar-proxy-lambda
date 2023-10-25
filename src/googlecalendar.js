@@ -117,14 +117,35 @@ class GoogleCalendar {
     const creator = event.creator;
     if (creator) {
       creator.email = this._redactEmail(creator.email);
+      if (creator.displayName) {
+        creator.displayName = ""
+      }
     }
     const organizer = event.organizer
     if (organizer) {
       organizer.email = this._redactEmail(organizer.email);
+      if (organizer.displayName) {
+        organizer.displayName = ""
+      }
     }
     const attendees = event.attendees || []
     for (let i = 0; i < attendees.length; i++) {
       attendees[i].email = this._redactEmail(attendees[i].email);
+      if (attendees[i].displayName) {
+        attendees[i].displayName = ""
+      }
+    }
+
+    if (event.attachments) {
+      event.attachments = []
+    }
+
+    if (event.conferenceData) {
+      event.conferenceData = {}
+    }
+
+    if (event.extendedProperties) {
+      event.extendedProperties = {}
     }
 
     return event;
