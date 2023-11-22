@@ -49,19 +49,19 @@ resource "aws_iam_role_policy_attachment" "google_calendar_proxy_lambda_basic_ex
 }
 
 resource "aws_secretsmanager_secret" "gcal_proxy_lambda_private_key" {
-  name = "gcal_proxy_lambda_private_key"
+  name = var.private_key_secret_id
 }
 
 resource "aws_secretsmanager_secret" "gcal_proxy_lambda_client_email" {
-  name = "gcal_proxy_lambda_client_email"
+  name = var.client_email_secret_id
 }
 
 resource "aws_secretsmanager_secret" "gcal_proxy_lambda_access_token" {
-  name = "gcal_proxy_lambda_access_token"
+  name = var.proxy_lambda_access_token_secret_id
 }
 
 resource "aws_secretsmanager_secret" "gcal_proxy_lambda_hash_secret" {
-  name = "gcal_proxy_lambda_hash_secret"
+  name = var.hash_secret_secret_id
 }
 
 resource "aws_iam_policy" "secrets" {
