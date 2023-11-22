@@ -24,12 +24,11 @@ class GoogleCalendar {
       return GoogleCalendar.googleCalendars[calendarId];
     }
 
-    const gcalPrivateKey = await assertSecret("GCAL_PRIVATE_KEY")
-    const gcalClientEmail = await assertSecret("GCAL_CLIENT_EMAIL")
+    const gcalCredentials = JSON.parse(await assertSecret("GCAL_SECRET_ID"))
 
     const jwtClient = new google.auth.JWT({
-      email: (gcalClientEmail || ""),
-      key: (gcalPrivateKey || "").replace(/\\n/g, '\n'),
+      email: (gcalCredentials.client_email || ""),
+      key: (gcalCredentials.private_key || "").replace(/\\n/g, '\n'),
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
       subject: calendarId,
     });
@@ -44,14 +43,14 @@ class GoogleCalendar {
     if (process.env.ALLOWED_EMAIL_DOMAINS) {
       allowDomains = process.env.ALLOWED_EMAIL_DOMAINS.split(",")
     }
-    const hashSecret = await assertSecret("HASH_SECRET") || ""
+    const proxyCredentials = JSON.parse(await assertSecret("PROXY_SECRET_ID"))
 
     // Create and cache calendar client for each calendar id
     GoogleCalendar.googleCalendars[calendarId] = new GoogleCalendar(
       calendarClient,
       calendarId,
       allowDomains,
-      hashSecret
+      proxyCredentials.hash_secret || ""
     );
     return GoogleCalendar.googleCalendars[calendarId];
   }

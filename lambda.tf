@@ -48,20 +48,12 @@ resource "aws_iam_role_policy_attachment" "google_calendar_proxy_lambda_basic_ex
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_secretsmanager_secret" "gcal_proxy_lambda_private_key" {
-  name = var.private_key_secret_id
+resource "aws_secretsmanager_secret" "gcal_secret_id" {
+  name = var.gcal_secret_id
 }
 
-resource "aws_secretsmanager_secret" "gcal_proxy_lambda_client_email" {
-  name = var.client_email_secret_id
-}
-
-resource "aws_secretsmanager_secret" "gcal_proxy_lambda_access_token" {
-  name = var.proxy_lambda_access_token_secret_id
-}
-
-resource "aws_secretsmanager_secret" "gcal_proxy_lambda_hash_secret" {
-  name = var.hash_secret_secret_id
+resource "aws_secretsmanager_secret" "proxy_secret_id" {
+  name = var.proxy_secret_id
 }
 
 resource "aws_iam_policy" "secrets" {
@@ -76,28 +68,14 @@ resource "aws_iam_policy" "secrets" {
           "secretsmanager:GetSecretValue",
         ]
         Effect   = "Allow"
-        Resource = "${aws_secretsmanager_secret.gcal_proxy_lambda_private_key.arn}"
+        Resource = "${aws_secretsmanager_secret.gcal_secret_id.arn}"
       },
       {
         Action = [
           "secretsmanager:GetSecretValue",
         ]
         Effect   = "Allow"
-        Resource = "${aws_secretsmanager_secret.gcal_proxy_lambda_client_email.arn}"
-      },
-      {
-        Action = [
-          "secretsmanager:GetSecretValue",
-        ]
-        Effect   = "Allow"
-        Resource = "${aws_secretsmanager_secret.gcal_proxy_lambda_access_token.arn}"
-      },
-      {
-        Action = [
-          "secretsmanager:GetSecretValue",
-        ]
-        Effect   = "Allow"
-        Resource = "${aws_secretsmanager_secret.gcal_proxy_lambda_hash_secret.arn}"
+        Resource = "${aws_secretsmanager_secret.proxy_secret_id.arn}"
       },
     ]
   })
@@ -121,11 +99,9 @@ resource "aws_lambda_function" "google_calendar_proxy_lambda" {
 
   environment {
     variables = {
-      GCAL_PRIVATE_KEY_ASM_NAME          = aws_secretsmanager_secret.gcal_proxy_lambda_private_key.name
-      GCAL_CLIENT_EMAIL_ASM_NAME         = aws_secretsmanager_secret.gcal_proxy_lambda_client_email.name
-      PROXY_LAMBDA_ACCESS_TOKEN_ASM_NAME = aws_secretsmanager_secret.gcal_proxy_lambda_access_token.name
-      HASH_SECRET_ASM_NAME               = aws_secretsmanager_secret.gcal_proxy_lambda_hash_secret.name
-      ALLOWED_EMAIL_DOMAINS              = join(",", var.allowed_email_domains)
+      GCAL_SECRET_ID_ASM_NAME  = aws_secretsmanager_secret.gcal_secret_id.name
+      PROXY_SECRET_ID_ASM_NAME = aws_secretsmanager_secret.proxy_secret_id.name
+      ALLOWED_EMAIL_DOMAINS    = join(",", var.allowed_email_domains)
     }
   }
 }

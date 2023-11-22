@@ -9,10 +9,10 @@
 
 ## AWS secrets manager
 After applying terraform changes, you will need to go in and set values for the following keys in AWS secrets manager. If you used custom secret ids, make sure you find the secrets with the ids you entered into terraform as variables.
-- `gcal_proxy_lambda_private_key`: Private Key for accessing Google Calendar API
-- `gcal_proxy_lambda_client_email`: Google Calendar API Client Email
-- `gcal_proxy_lambda_access_token`: Access Token required to invoke the Lambda (recommended to generate a token at least 20 characters long)
-- `gcal_proxy_lambda_hash_secret`: Secret for hashing data (recommended to generate a secret at least 20 characters long)
+- `gcal_secret_id`: Google credentials info (json format)
+- `proxy_secret_id`: Credentials to access proxy (json with following 2 keys)
+  - `access_token`: Access Token required to invoke the Lambda (recommended to generate a token at least 20 characters long)
+  - `hash_secret`: Secret for hashing data (recommended to generate a secret at least 20 characters long)
 
 ## Output
 - `google_calendar_proxy_lambda_id`: ID of Google Calendar Lambda Created
@@ -25,11 +25,9 @@ Replace (ref) with the specific commit hash to deploy
 module "attuned_google_calendar_proxy_lambda" {
   source = "git@github.com:Attuned-Corp/google-calendar-proxy-lambda.git?ref=(ref)"
 
-  aws_region                          = "us-west-2"
-  allowed_email_domains               = ["example.com"]
-  private_key_secret_id               = "gcal_proxy_lambda_private_key"
-  client_email_secret_id              = "gcal_proxy_lambda_client_email"
-  proxy_lambda_access_token_secret_id = "gcal_proxy_lambda_access_token"
-  hash_secret_secret_id               = "gcal_proxy_lambda_hash_secret"
+  aws_region            = "us-west-2"
+  allowed_email_domains = ["example.com"]
+  gcal_secret_id        = "gcal_secret_id"
+  proxy_secret_id       = "proxy_secret_id"
 }
 ```
