@@ -8,14 +8,26 @@ variable "allowed_email_domains" {
   type        = list(string)
 }
 
-variable "gcal_secret_id" {
-  description = "What would you like the secret id to be for the Google Calendar credentials?"
+variable "gcal_secret_arn" {
+  description = "What is your secret arn for the Google Calendar credentials?"
   type        = string
-  default     = "gcal_secret_id"
+  default     = "gcal_secret_arn"
 }
 
-variable "proxy_secret_id" {
-  description = "What would you like the secret id to be for the proxy credentials (access token and hash secret)?"
+variable "proxy_secret_arn" {
+  description = "What is your secret arn for the proxy credentials (access token and hash secret)?"
   type        = string
-  default     = "proxy_secret_id"
+  default     = "proxy_secret_arn"
+}
+
+variable "gcal_secret_name" {
+  description = "What is your secret name for the Google Calendar credentials?"
+  type        = string
+  default     = "gcal_secret_name"
+}
+
+variable "proxy_secret_name" {
+  description = "What is your secret name for the proxy credentials (access token and hash secret)?"
+  type        = string
+  default     = "proxy_secret_name"
 }
