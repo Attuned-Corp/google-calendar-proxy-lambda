@@ -8,7 +8,7 @@
 - `allowed_email_domains`: Allowed email domains that will not be hashed
 
 ## AWS secrets manager
-After applying terraform changes, you will need to go in and set values for the following keys in AWS secrets manager:
+After applying terraform changes, you will need to go in and set values for the following keys in AWS secrets manager. If you used custom secret ids, make sure you find the secrets with the ids you entered into terraform as variables.
 - `gcal_proxy_lambda_private_key`: Private Key for accessing Google Calendar API
 - `gcal_proxy_lambda_client_email`: Google Calendar API Client Email
 - `gcal_proxy_lambda_access_token`: Access Token required to invoke the Lambda (recommended to generate a token at least 20 characters long)
