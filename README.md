@@ -3,16 +3,20 @@
 ## Requirements
 - `node` 18
 
+## Set up: AWS secrets manager
+As a pre-requisite, you will need to set up 2 secrets.
+- Google credentials: Google credentials info for accessing Gcal API (json format - should contain `private_key` and `client_email`)
+- Proxy credentials: Credentials to access proxy (json with following 2 keys)
+  - `access_token`: Access Token required to invoke the Lambda (recommended to generate a token at least 20 characters long)
+  - `hash_secret`: Secret for hashing data (recommended to generate a secret at least 20 characters long)
+
 ## Variables
 - `aws_region`: AWS Region to deploy in
 - `allowed_email_domains`: Allowed email domains that will not be hashed
-
-## AWS secrets manager
-After applying terraform changes, you will need to go in and set values for the following keys in AWS secrets manager. If you used custom secret ids, make sure you find the secrets with the ids you entered into terraform as variables.
-- `gcal_secret_id`: Google credentials info (json format)
-- `proxy_secret_id`: Credentials to access proxy (json with following 2 keys)
-  - `access_token`: Access Token required to invoke the Lambda (recommended to generate a token at least 20 characters long)
-  - `hash_secret`: Secret for hashing data (recommended to generate a secret at least 20 characters long)
+- `gcal_secret_arn`: ARN of the secret in AWS secrets manager that holds your google credentials json info
+- `proxy_secret_arn`: ARN of the secret in AWS secrets manager that holds your proxy credentials json info
+- `gcal_secret_name`: Name of the secret in AWS secrets manager that holds your google credentials json info
+- `proxy_secret_name`: Name of the secret in AWS secrets manager that holds your proxy credentials json info
 
 ## Output
 - `google_calendar_proxy_lambda_id`: ID of Google Calendar Lambda Created
@@ -27,7 +31,9 @@ module "attuned_google_calendar_proxy_lambda" {
 
   aws_region            = "us-west-2"
   allowed_email_domains = ["example.com"]
-  gcal_secret_id        = "gcal_secret_id"
-  proxy_secret_id       = "proxy_secret_id"
+  gcal_secret_arn        = "arn:aws:secretsmanager:us-west-2:test:secret:gcal_secret"
+  proxy_secret_arn       = "arn:aws:secretsmanager:us-west-2:test:secret:proxy_secret"
+  gcal_secret_name        = "gcal_secret"
+  proxy_secret_name       = "proxy_secret"
 }
 ```

@@ -48,14 +48,6 @@ resource "aws_iam_role_policy_attachment" "google_calendar_proxy_lambda_basic_ex
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_secretsmanager_secret" "gcal_secret_id" {
-  name = var.gcal_secret_id
-}
-
-resource "aws_secretsmanager_secret" "proxy_secret_id" {
-  name = var.proxy_secret_id
-}
-
 resource "aws_iam_policy" "secrets" {
   name = "tf-google-calendar-proxy-lambda-secrets"
   path = "/"
@@ -68,14 +60,14 @@ resource "aws_iam_policy" "secrets" {
           "secretsmanager:GetSecretValue",
         ]
         Effect   = "Allow"
-        Resource = "${aws_secretsmanager_secret.gcal_secret_id.arn}"
+        Resource = "${var.gcal_secret_arn}"
       },
       {
         Action = [
           "secretsmanager:GetSecretValue",
         ]
         Effect   = "Allow"
-        Resource = "${aws_secretsmanager_secret.proxy_secret_id.arn}"
+        Resource = "${var.proxy_secret_arn}"
       },
     ]
   })
@@ -99,8 +91,8 @@ resource "aws_lambda_function" "google_calendar_proxy_lambda" {
 
   environment {
     variables = {
-      GCAL_SECRET_ID_ASM_NAME  = aws_secretsmanager_secret.gcal_secret_id.name
-      PROXY_SECRET_ID_ASM_NAME = aws_secretsmanager_secret.proxy_secret_id.name
+      GCAL_SECRET_ID_ASM_NAME  = var.gcal_secret_name
+      PROXY_SECRET_ID_ASM_NAME = var.proxy_secret_name
       ALLOWED_EMAIL_DOMAINS    = join(",", var.allowed_email_domains)
     }
   }
