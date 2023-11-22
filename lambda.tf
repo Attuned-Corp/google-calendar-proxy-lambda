@@ -48,6 +48,66 @@ resource "aws_iam_role_policy_attachment" "google_calendar_proxy_lambda_basic_ex
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_secretsmanager_secret" "gcal_proxy_lambda_private_key" {
+  name = "gcal_proxy_lambda_private_key"
+}
+
+resource "aws_secretsmanager_secret" "gcal_proxy_lambda_client_email" {
+  name = "gcal_proxy_lambda_client_email"
+}
+
+resource "aws_secretsmanager_secret" "gcal_proxy_lambda_access_token" {
+  name = "gcal_proxy_lambda_access_token"
+}
+
+resource "aws_secretsmanager_secret" "gcal_proxy_lambda_hash_secret" {
+  name = "gcal_proxy_lambda_hash_secret"
+}
+
+resource "aws_iam_policy" "secrets" {
+  name = "tf-google-calendar-proxy-lambda-secrets"
+  path = "/"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_secretsmanager_secret.gcal_proxy_lambda_private_key.arn}"
+      },
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_secretsmanager_secret.gcal_proxy_lambda_client_email.arn}"
+      },
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_secretsmanager_secret.gcal_proxy_lambda_access_token.arn}"
+      },
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_secretsmanager_secret.gcal_proxy_lambda_hash_secret.arn}"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "secrets" {
+  role       = aws_iam_role.google_calendar_proxy_lambda.name
+  policy_arn = aws_iam_policy.secrets.arn
+}
+
 resource "aws_lambda_function" "google_calendar_proxy_lambda" {
   function_name    = "google-calendar-proxy-lambda"
   filename         = data.archive_file.google_calendar_proxy_lambda_zip.output_path
@@ -61,11 +121,11 @@ resource "aws_lambda_function" "google_calendar_proxy_lambda" {
 
   environment {
     variables = {
-      GCAL_CLIENT_EMAIL         = var.client_email
-      GCAL_PRIVATE_KEY          = var.private_key
-      PROXY_LAMBDA_ACCESS_TOKEN = var.proxy_lambda_access_token
-      HASH_SECRET               = var.hash_secret
-      ALLOWED_EMAIL_DOMAINS     = join(",", var.allowed_email_domains)
+      GCAL_PRIVATE_KEY_ASM_NAME          = aws_secretsmanager_secret.gcal_proxy_lambda_private_key.name
+      GCAL_CLIENT_EMAIL_ASM_NAME         = aws_secretsmanager_secret.gcal_proxy_lambda_client_email.name
+      PROXY_LAMBDA_ACCESS_TOKEN_ASM_NAME = aws_secretsmanager_secret.gcal_proxy_lambda_access_token.name
+      HASH_SECRET_ASM_NAME               = aws_secretsmanager_secret.gcal_proxy_lambda_hash_secret.name
+      ALLOWED_EMAIL_DOMAINS              = join(",", var.allowed_email_domains)
     }
   }
 }

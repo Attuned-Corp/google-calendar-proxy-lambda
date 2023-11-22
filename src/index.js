@@ -43,7 +43,8 @@ async function eventHandler(rawEvent) {
     }
   }
 
-  if (!isAccessTokenValid(accessToken)) {
+  const valid = await isAccessTokenValid(accessToken)
+  if (!valid) {
     return {
       body: JSON.stringify({
         errorMessage: 'Unauthorized',

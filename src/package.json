@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "aws-sdk": "^2.1501.0",
     "googleapis": "^127.0.0"
   },
   "scripts": {
