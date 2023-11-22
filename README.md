@@ -25,7 +25,11 @@ Replace (ref) with the specific commit hash to deploy
 module "attuned_google_calendar_proxy_lambda" {
   source = "git@github.com:Attuned-Corp/google-calendar-proxy-lambda.git?ref=(ref)"
 
-  aws_region                = "us-west-2"
-  allowed_email_domains     = ["example.com"]
+  aws_region                          = "us-west-2"
+  allowed_email_domains               = ["example.com"]
+  private_key_secret_id               = "gcal_proxy_lambda_private_key"
+  client_email_secret_id              = "gcal_proxy_lambda_client_email"
+  proxy_lambda_access_token_secret_id = "gcal_proxy_lambda_access_token"
+  hash_secret_secret_id               = "gcal_proxy_lambda_hash_secret"
 }
 ```
