@@ -2,7 +2,9 @@ const timingSafeEqual = require("crypto").timingSafeEqual
 const assertSecret = require('./secretManager').assertSecret
 
 const isAccessTokenValid = async (accessToken) => {
-  const serverAccessToken = await assertSecret("PROXY_LAMBDA_ACCESS_TOKEN")
+  const proxyCredentials = JSON.parse(await assertSecret("PROXY_SECRET_ID"))
+
+  const serverAccessToken = proxyCredentials.access_token || ""
 
   const accessTokenBuffer = Buffer.from(accessToken);
   const serverAccessTokenBuffer = Buffer.from(serverAccessToken);
