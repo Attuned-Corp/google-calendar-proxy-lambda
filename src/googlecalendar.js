@@ -1,6 +1,6 @@
 const google = require('googleapis').google
 const createHash = require('crypto').createHash
-
+const assertSecret = require('./secretManager').assertSecret
 class GoogleCalendar {
   static googleCalendars = {};
 
@@ -24,9 +24,12 @@ class GoogleCalendar {
       return GoogleCalendar.googleCalendars[calendarId];
     }
 
+    const gcalPrivateKey = await assertSecret("GCAL_PRIVATE_KEY")
+    const gcalClientEmail = await assertSecret("GCAL_CLIENT_EMAIL")
+
     const jwtClient = new google.auth.JWT({
-      email: (process.env.GCAL_CLIENT_EMAIL || ""),
-      key: (process.env.GCAL_PRIVATE_KEY || "").replace(/\\n/g, '\n'),
+      email: (gcalClientEmail || ""),
+      key: (gcalPrivateKey || "").replace(/\\n/g, '\n'),
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
       subject: calendarId,
     });
@@ -41,7 +44,7 @@ class GoogleCalendar {
     if (process.env.ALLOWED_EMAIL_DOMAINS) {
       allowDomains = process.env.ALLOWED_EMAIL_DOMAINS.split(",")
     }
-    const hashSecret = process.env.HASH_SECRET || ""
+    const hashSecret = await assertSecret("HASH_SECRET") || ""
 
     // Create and cache calendar client for each calendar id
     GoogleCalendar.googleCalendars[calendarId] = new GoogleCalendar(
